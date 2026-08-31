@@ -4,7 +4,32 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co;">
-  <title>Portfolio</title>
+
+  <!-- ═══ SEO — Thông tin cơ bản ════════════════════════════════════════════ -->
+  <title>Hoàng Phi Hùng — Portfolio</title>
+  <meta name="description" content="Hoàng Phi Hùng — IT Student & Business Analysis Intern. Experienced in requirements gathering, ERP systems, UML modeling, and process analysis.">
+  <meta name="author" content="Hoàng Phi Hùng">
+  <meta name="keywords" content="Hoang Phi Hung, Business Analysis, BA, Portfolio, IT Student, ERP, Odoo, SQL">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://hgnphh.github.io/portfolio/">
+
+  <!-- ═══ Open Graph (Facebook, Zalo, Messenger share preview) ══════════════ -->
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://hgnphh.github.io/portfolio/">
+  <meta property="og:site_name"   content="Hoàng Phi Hùng — Portfolio">
+  <meta property="og:title"       content="Hoàng Phi Hùng — Portfolio">
+  <meta property="og:description" content="IT Student & Business Analysis Intern. Experienced in requirements gathering, ERP systems, UML modeling, and process analysis.">
+  <meta property="og:image"       content="https://hgnphh.github.io/portfolio/avatar.jpg">
+  <meta property="og:image:width"  content="400">
+  <meta property="og:image:height" content="400">
+  <meta property="og:locale"      content="vi_VN">
+
+  <!-- ═══ Twitter Card ════════════════════════════════════════════════════════ -->
+  <meta name="twitter:card"        content="summary">
+  <meta name="twitter:title"       content="Hoàng Phi Hùng — Portfolio">
+  <meta name="twitter:description" content="IT Student & Business Analysis Intern. Experienced in requirements gathering, ERP systems and process analysis.">
+  <meta name="twitter:image"       content="https://hgnphh.github.io/portfolio/avatar.jpg">
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -39,7 +64,7 @@
       <!-- Hero: Avatar + Name + Quote + CV -->
       <div class="hero-header">
         <div class="avatar-container">
-          <img id="avatar-img" src="avatar.jpg" alt="Avatar" class="avatar"
+          <img id="avatar-img" src="avatar.jpg" alt="Ảnh đại diện Hoàng Phi Hùng" class="avatar"
                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
           <div class="avatar-placeholder" style="display: none;">
             <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +77,12 @@
         </div>
         <div class="hero-text">
           <h1 class="name">
-            <span id="profile-name">Loading...</span>
+            <!--
+              QUAN TRỌNG — Fallback tĩnh cho SEO & share preview:
+              Nội dung dưới đây crawler/bot đọc được ngay không cần JS.
+              JS (portfolio-data.js) sẽ override bằng dữ liệu từ Supabase khi load xong.
+            -->
+            <span id="profile-name">Hoàng Phi Hùng</span>
             <span class="verified-badge" aria-label="Verified">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="11" fill="#1877F2" stroke="white" stroke-width="1"/>
@@ -60,7 +90,8 @@
               </svg>
             </span>
           </h1>
-          <p class="quote" id="profile-quote"></p>
+          <!-- Fallback quote — JS sẽ override từ Supabase -->
+          <p class="quote" id="profile-quote">"The biggest risk is not taking any risk."</p>
           <a href="cv.pdf" id="cv-button" download class="cv-button">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -72,14 +103,14 @@
         </div>
       </div>
 
-      <!-- Bio -->
+      <!-- Bio — Fallback tĩnh, JS override -->
       <div class="intro">
-        <p id="profile-bio1"></p>
+        <p id="profile-bio1">I am an Information Technology student with a strong interest in Business Analysis. Through academic projects, I have gained hands-on experience in analyzing business processes, identifying gaps, and proposing system solutions based on ERP platforms.</p>
         <br>
-        <p id="profile-bio2"></p>
+        <p id="profile-bio2">As a BA Intern, my goal is to learn from real-world business environments, improve my analytical thinking, and contribute value to project teams through structured analysis and clear documentation.</p>
       </div>
 
-      <!-- Skills -->
+      <!-- Skills — render động từ Supabase -->
       <div class="info-section">
         <div class="info-item">
           <strong>I know:</strong>
@@ -91,13 +122,13 @@
         </div>
       </div>
 
-      <!-- Technical Skills -->
+      <!-- Technical Skills — render động từ Supabase -->
       <div class="exp">
         <strong>Technical Skills</strong>
         <div id="technical-skills-list"></div>
       </div>
 
-      <!-- Education -->
+      <!-- Education — render động từ Supabase -->
       <div class="about fade-in">
         <h4 class="section-title">Education</h4>
         <p id="education-gpa"></p>
@@ -121,9 +152,14 @@
       <div class="contact">
         <p>You can find me via:</p>
         <div class="contact-links" id="social-links-list">
-          <!-- Dynamically loaded -->
+          <!-- Dynamically loaded from Supabase -->
         </div>
-        <p>Or mail me at <a href="#" id="contact-email"></a></p>
+        <!--
+          FIX: href có email mặc định thật để crawler/mailto hoạt động ngay.
+          JS sẽ override bằng email từ Supabase (nếu đã thiết lập).
+          → Cập nhật email thật của bạn trong trang admin sau khi deploy.
+        -->
+        <p>Or mail me at <a href="mailto:hoangphihung.user@gmail.com" id="contact-email">hoangphihung.user@gmail.com</a></p>
       </div>
 
     </section>
@@ -131,17 +167,17 @@
 
   <footer class="site-footer">
     <div class="container">
-      <p id="footer-copyright">Copyright © 2025 Hoang Phi Hung</p>
+      <p id="footer-copyright">Copyright © 2025 Hoàng Phi Hùng</p>
     </div>
   </footer>
 
   <!-- Supabase SDK từ CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Client khởi tạo (điền credentials vào file này) -->
+  <!-- Client khởi tạo — điền Project URL + anon key vào file này -->
   <script src="supabase-client.js"></script>
-  <!-- Fetch & render data từ Supabase -->
+  <!-- Fetch & render data từ Supabase (override fallback content khi load xong) -->
   <script src="portfolio-data.js"></script>
-  <!-- UI effects (theme toggle, animations, ripple) -->
+  <!-- UI effects: theme toggle, scroll animations, ripple -->
   <script src="script.js"></script>
 </body>
 </html>
