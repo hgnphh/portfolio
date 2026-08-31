@@ -1,0 +1,1092 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Portfolio</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary:     #3b82f6;
+      --primary-d:   #2563eb;
+      --danger:      #ef4444;
+      --danger-d:    #dc2626;
+      --success:     #22c55e;
+      --warning:     #f59e0b;
+      --bg:          #f1f5f9;
+      --card:        #ffffff;
+      --text:        #1e293b;
+      --muted:       #64748b;
+      --border:      #e2e8f0;
+      --sidebar:     #1e293b;
+      --sidebar-txt: #94a3b8;
+      --sidebar-act: #ffffff;
+      --input-bg:    #f8fafc;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Login Page ───────────────────────────────────────── */
+    #login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    }
+    .login-box {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .login-logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .login-logo svg { opacity: 0.9; }
+    .login-logo h1 { font-size: 1.25rem; color: var(--text); margin-top: 0.75rem; }
+    .login-logo p  { color: var(--muted); font-size: 0.875rem; }
+
+    /* ── Dashboard Layout ─────────────────────────────────── */
+    #dashboard { display: none; min-height: 100vh; }
+    .layout { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      min-height: 100vh;
+      background: var(--sidebar);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+    .sidebar-header {
+      padding: 1.25rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+    }
+    .sidebar-header svg { color: #60a5fa; flex-shrink: 0; }
+    .sidebar-header span { color: #f1f5f9; font-weight: 600; font-size: 0.875rem; }
+    .sidebar nav { flex: 1; padding: 0.75rem 0; overflow-y: auto; }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      width: 100%;
+      padding: 0.625rem 1rem;
+      background: none;
+      border: none;
+      color: var(--sidebar-txt);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+      border-radius: 0;
+    }
+    .nav-btn:hover  { color: #e2e8f0; background: rgba(255,255,255,0.06); }
+    .nav-btn.active { color: var(--sidebar-act); background: rgba(59,130,246,0.2); border-left: 3px solid var(--primary); }
+    .nav-btn svg    { opacity: 0.7; flex-shrink: 0; }
+    .nav-btn.active svg { opacity: 1; }
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 220px;
+      padding: 1.5rem;
+      min-height: 100vh;
+    }
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+
+    /* ── Cards & Typography ───────────────────────────────── */
+    .page-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+    }
+    .card-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── Form Elements ────────────────────────────────────── */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 0.375rem;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      background: var(--input-bg);
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group input[type="number"] { -moz-appearance: textfield; }
+    .form-group input[type="checkbox"] {
+      width: auto;
+      cursor: pointer;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    /* ── Buttons ──────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-d); }
+    .btn-danger  { background: var(--danger); color: #fff; }
+    .btn-danger:hover:not(:disabled)  { background: var(--danger-d); }
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .btn-outline:hover:not(:disabled) { background: rgba(59,130,246,0.07); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+    }
+    .btn-ghost:hover:not(:disabled) { background: var(--bg); }
+    .btn-sm { padding: 0.3rem 0.625rem; font-size: 0.75rem; }
+    .btn-logout { background: rgba(239,68,68,0.12); color: var(--danger); width: 100%; justify-content: center; }
+    .btn-logout:hover { background: rgba(239,68,68,0.22); }
+
+    /* ── Toast Notifications ──────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .toast {
+      background: #1e293b;
+      color: #f1f5f9;
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: slideIn 0.2s ease;
+      max-width: 320px;
+    }
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error   { border-left: 4px solid var(--danger);  }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* ── List Items (Skills, Tech Skills, Social) ─────────── */
+    .item-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .item-row span { flex: 1; font-size: 0.875rem; }
+    .add-row { display: flex; gap: 0.5rem; }
+    .add-row input { flex: 1; }
+
+    /* ── Projects Table ───────────────────────────────────── */
+    .project-table { width: 100%; border-collapse: collapse; }
+    .project-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .project-table td {
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+      vertical-align: middle;
+    }
+    .project-table tr:last-child td { border-bottom: none; }
+    .project-table tr:hover td { background: rgba(59,130,246,0.03); }
+    .badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 99px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-visible { background: rgba(34,197,94,0.12); color: #16a34a; }
+    .badge-hidden  { background: rgba(100,116,139,0.12); color: var(--muted); }
+
+    /* ── Modal ────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .modal-title { font-size: 1.125rem; font-weight: 700; }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: 0.25rem; border-radius: 4px;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.625rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .tags-input-hint { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* ── Spinner ──────────────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { text-align: center; color: var(--muted); padding: 2rem 0; }
+  </style>
+</head>
+<body>
+
+<!-- ══ TOAST CONTAINER ════════════════════════════════════════════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ══ LOGIN PAGE ════════════════════════════════════════════════════════════ -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="48" height="48" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="6" fill="#3b82f6"/>
+        <path d="M8 12L16 8L24 12V20L16 24L8 20V12Z" stroke="white" stroke-width="2" fill="none"/>
+        <circle cx="16" cy="16" r="3" fill="white"/>
+      </svg>
+      <h1>Portfolio Admin</h1>
+      <p>Đăng nhập để quản lý nội dung</p>
+    </div>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="admin@example.com" required autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label for="login-password">Mật khẩu</label>
+        <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" />
+      </div>
+      <div id="login-error" style="color:var(--danger);font-size:0.875rem;margin-bottom:0.75rem;display:none;"></div>
+      <button type="submit" class="btn btn-primary" id="login-btn" style="width:100%;justify-content:center;">
+        Đăng nhập
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ═════════════════════════════════════════════════════════════ -->
+<div id="dashboard">
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="4" fill="#3b82f6"/>
+          <path d="M8 12L16 8L24 12V20L16 24L8 20V12Z" stroke="white" stroke-width="2" fill="none"/>
+          <circle cx="16" cy="16" r="3" fill="white"/>
+        </svg>
+        <span>Portfolio Admin</span>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-section="profile" onclick="switchSection('profile')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Profile
+        </button>
+        <button class="nav-btn" data-section="education" onclick="switchSection('education')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422A12 12 0 0112 20.99a12 12 0 01-6.16-10.41L12 14z"/></svg>
+          Education
+        </button>
+        <button class="nav-btn" data-section="skills" onclick="switchSection('skills')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Skills
+        </button>
+        <button class="nav-btn" data-section="techskills" onclick="switchSection('techskills')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Technical Skills
+        </button>
+        <button class="nav-btn" data-section="social" onclick="switchSection('social')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Social Links
+        </button>
+        <button class="nav-btn" data-section="projects" onclick="switchSection('projects')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L6 7h12l-2-4z"/></svg>
+          Projects
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn btn-logout" onclick="handleLogout()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Đăng xuất
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- ── Profile Section ──────────────────────────────────────────────── -->
+      <div id="section-profile" class="section-panel active">
+        <h2 class="page-title">Profile</h2>
+        <div class="card">
+          <div class="card-title">Thông tin cá nhân</div>
+          <form id="profile-form">
+            <div class="two-col">
+              <div class="form-group">
+                <label>Tên</label>
+                <input type="text" id="p-name" placeholder="Hoàng Phi Hùng" />
+              </div>
+              <div class="form-group">
+                <label>Email liên hệ</label>
+                <input type="email" id="p-email" placeholder="your@email.com" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Quote / Motto</label>
+              <input type="text" id="p-quote" placeholder='"The biggest risk is not taking any risk."' />
+            </div>
+            <div class="form-group">
+              <label>Bio đoạn 1</label>
+              <textarea id="p-bio1" rows="3" placeholder="Giới thiệu bản thân..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Bio đoạn 2</label>
+              <textarea id="p-bio2" rows="3" placeholder="Mục tiêu, định hướng..."></textarea>
+            </div>
+            <div class="two-col">
+              <div class="form-group">
+                <label>Avatar URL (để trống = dùng avatar.jpg)</label>
+                <input type="text" id="p-avatar" placeholder="avatar.jpg hoặc https://..." />
+              </div>
+              <div class="form-group">
+                <label>CV file URL</label>
+                <input type="text" id="p-cv" placeholder="cv.pdf hoặc https://..." />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="profile-save-btn">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Lưu Profile
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Education Section ────────────────────────────────────────────── -->
+      <div id="section-education" class="section-panel">
+        <h2 class="page-title">Education</h2>
+        <div class="card">
+          <div class="card-title">Thông tin học vấn</div>
+          <form id="education-form">
+            <div class="two-col">
+              <div class="form-group">
+                <label>GPA hiện tại</label>
+                <input type="text" id="e-gpa" placeholder="3.0" />
+              </div>
+              <div class="form-group">
+                <label>Trình độ tiếng Anh</label>
+                <input type="text" id="e-english" placeholder="Intermediate (TOEIC 700)" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Môn học nổi bật (Relevant Coursework)</label>
+              <textarea id="e-coursework" rows="3" placeholder="Management Information System (A+), ..."></textarea>
+            </div>
+            <div class="two-col">
+              <div class="form-group">
+                <label>Tiến độ tốt nghiệp (%)</label>
+                <input type="number" id="e-progress" min="0" max="100" placeholder="75" />
+              </div>
+              <div class="form-group">
+                <label>Năm tốt nghiệp dự kiến</label>
+                <input type="number" id="e-year" placeholder="2027" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="edu-save-btn">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Lưu Education
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── Skills Section ───────────────────────────────────────────────── -->
+      <div id="section-skills" class="section-panel">
+        <h2 class="page-title">Skills</h2>
+
+        <!-- I Know -->
+        <div class="card">
+          <div class="card-title">I Know (Ngôn ngữ lập trình)</div>
+          <div class="item-list" id="skills-know-list"></div>
+          <div class="add-row">
+            <input type="text" id="new-skill-know" placeholder="VD: JavaScript" />
+            <button class="btn btn-primary" onclick="addSkillKnow()">+ Thêm</button>
+          </div>
+        </div>
+
+        <!-- I Use -->
+        <div class="card">
+          <div class="card-title">I Use (Công cụ)</div>
+          <div class="item-list" id="skills-use-list"></div>
+          <div class="add-row">
+            <input type="text" id="new-skill-use" placeholder="VD: Postman" />
+            <button class="btn btn-primary" onclick="addSkillUse()">+ Thêm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Technical Skills Section ─────────────────────────────────────── -->
+      <div id="section-techskills" class="section-panel">
+        <h2 class="page-title">Technical Skills</h2>
+        <div class="card">
+          <div class="card-title">Danh sách kỹ năng chuyên môn</div>
+          <div class="item-list" id="tech-skills-list"></div>
+          <div class="add-row">
+            <input type="text" id="new-tech-skill" placeholder="VD: Data Flow Diagram" />
+            <button class="btn btn-primary" onclick="addTechSkill()">+ Thêm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Social Links Section ──────────────────────────────────────────── -->
+      <div id="section-social" class="section-panel">
+        <h2 class="page-title">Social Links</h2>
+        <div class="card">
+          <div class="card-title">Liên kết mạng xã hội</div>
+          <div id="social-links-list"></div>
+          <div class="add-row" style="margin-top:1rem">
+            <select id="new-social-platform" style="flex:0 0 130px;padding:0.5rem 0.75rem;border:1.5px solid var(--border);border-radius:8px;font-size:0.875rem;">
+              <option value="github">GitHub</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="twitter">Twitter</option>
+              <option value="discord">Discord</option>
+              <option value="facebook">Facebook</option>
+              <option value="youtube">YouTube</option>
+            </select>
+            <input type="url" id="new-social-url" placeholder="https://..." style="flex:1" />
+            <button class="btn btn-primary" onclick="addSocialLink()">+ Thêm</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Projects Section ──────────────────────────────────────────────── -->
+      <div id="section-projects" class="section-panel">
+        <h2 class="page-title">Projects</h2>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <div class="card-title" style="margin:0;padding:0;border:none">Danh sách dự án</div>
+            <button class="btn btn-primary" onclick="openProjectModal(null)">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Thêm dự án
+            </button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="project-table">
+              <thead>
+                <tr>
+                  <th>Tên dự án</th>
+                  <th>Role</th>
+                  <th>Domain</th>
+                  <th>Trạng thái</th>
+                  <th>Thứ tự</th>
+                  <th style="text-align:right">Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="projects-tbody">
+                <tr><td colspan="6" class="loading-text">Đang tải...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ══ PROJECT MODAL ══════════════════════════════════════════════════════════ -->
+<div id="project-modal" class="modal-overlay" style="display:none" onclick="closeModalOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Thêm dự án mới</div>
+      <button class="modal-close" onclick="closeProjectModal()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="project-form">
+      <input type="hidden" id="proj-id" />
+      <div class="form-group">
+        <label>Tên dự án *</label>
+        <input type="text" id="proj-title" placeholder="Tên dự án..." required />
+      </div>
+      <div class="two-col">
+        <div class="form-group">
+          <label>Role</label>
+          <input type="text" id="proj-role" placeholder="BA, Developer..." />
+        </div>
+        <div class="form-group">
+          <label>Domain</label>
+          <input type="text" id="proj-domain" placeholder="Retail, Finance..." />
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="form-group">
+          <label>Team size</label>
+          <input type="number" id="proj-team" min="1" placeholder="4" />
+        </div>
+        <div class="form-group">
+          <label>Thứ tự hiển thị</label>
+          <input type="number" id="proj-order" min="0" placeholder="1" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Mô tả (tuỳ chọn)</label>
+        <textarea id="proj-description" rows="3" placeholder="Mô tả ngắn về dự án..."></textarea>
+      </div>
+      <div class="two-col">
+        <div class="form-group">
+          <label>Demo URL</label>
+          <input type="text" id="proj-demo" placeholder="https://... hoặc path/to/file.pdf" />
+        </div>
+        <div class="form-group">
+          <label>GitHub URL</label>
+          <input type="url" id="proj-github" placeholder="https://github.com/..." />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Tech Tags</label>
+        <input type="text" id="proj-tags" placeholder="Odoo 18, Figma, Draw.io" />
+        <div class="tags-input-hint">Phân cách bằng dấu phẩy. VD: React, Node.js, MongoDB</div>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-row">
+          <input type="checkbox" id="proj-visible" checked />
+          Hiển thị trên portfolio
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeProjectModal()">Huỷ</button>
+        <button type="submit" class="btn btn-primary" id="proj-save-btn">Lưu dự án</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ SCRIPTS ════════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../supabase-client.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// ADMIN PANEL — Main Logic
+// ═══════════════════════════════════════════════════════════════════
+
+const sb = window.supabaseClient;
+
+// ─── Toast Notifications ────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span> ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// ─── Section Navigation ─────────────────────────────────────────────
+function switchSection(name) {
+  document.querySelectorAll('.section-panel').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(`section-${name}`).classList.add('active');
+  document.querySelector(`[data-section="${name}"]`).classList.add('active');
+}
+
+// ─── Auth ───────────────────────────────────────────────────────────
+async function checkAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showDashboard();
+  else showLogin();
+}
+
+function showDashboard() {
+  document.getElementById('login-page').style.display  = 'none';
+  document.getElementById('dashboard').style.display   = 'block';
+  loadAllData();
+}
+
+function showLogin() {
+  document.getElementById('login-page').style.display  = 'flex';
+  document.getElementById('dashboard').style.display   = 'none';
+}
+
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+  const email    = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Đang đăng nhập...';
+  errEl.style.display = 'none';
+
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    errEl.textContent = 'Email hoặc mật khẩu không đúng.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Đăng nhập';
+  } else {
+    showDashboard();
+  }
+});
+
+async function handleLogout() {
+  await sb.auth.signOut();
+  showLogin();
+}
+
+// ─── Load All Data on Dashboard Mount ──────────────────────────────
+async function loadAllData() {
+  await Promise.all([
+    loadProfile(),
+    loadSkillsKnow(),
+    loadSkillsUse(),
+    loadTechSkills(),
+    loadSocialLinks(),
+    loadProjects(),
+  ]);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════════════════════════════
+let profileId = null;
+
+async function loadProfile() {
+  const { data } = await sb.from('profile').select('*').single();
+  if (!data) return;
+  profileId = data.id;
+  document.getElementById('p-name').value   = data.name || '';
+  document.getElementById('p-email').value  = data.email || '';
+  document.getElementById('p-quote').value  = data.quote || '';
+  document.getElementById('p-bio1').value   = data.bio_1 || '';
+  document.getElementById('p-bio2').value   = data.bio_2 || '';
+  document.getElementById('p-avatar').value = data.avatar_url || '';
+  document.getElementById('p-cv').value     = data.cv_url || '';
+  // Education fields (same table)
+  document.getElementById('e-gpa').value        = data.gpa || '';
+  document.getElementById('e-english').value    = data.english_level || '';
+  document.getElementById('e-coursework').value = data.coursework || '';
+  document.getElementById('e-progress').value   = data.graduation_progress || 75;
+  document.getElementById('e-year').value       = data.graduation_year || 2027;
+}
+
+document.getElementById('profile-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('profile-save-btn');
+  btn.disabled = true; btn.textContent = 'Đang lưu...';
+
+  const payload = {
+    name:       document.getElementById('p-name').value.trim(),
+    email:      document.getElementById('p-email').value.trim(),
+    quote:      document.getElementById('p-quote').value.trim(),
+    bio_1:      document.getElementById('p-bio1').value.trim(),
+    bio_2:      document.getElementById('p-bio2').value.trim(),
+    avatar_url: document.getElementById('p-avatar').value.trim(),
+    cv_url:     document.getElementById('p-cv').value.trim(),
+    updated_at: new Date().toISOString(),
+  };
+
+  let err;
+  if (profileId) {
+    ({ error: err } = await sb.from('profile').update(payload).eq('id', profileId));
+  } else {
+    ({ error: err } = await sb.from('profile').insert(payload));
+    await loadProfile();
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Lưu Profile';
+  err ? showToast('Lỗi: ' + err.message, 'error') : showToast('Profile đã được lưu!');
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// EDUCATION (same table as profile)
+// ═══════════════════════════════════════════════════════════════════
+document.getElementById('education-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('edu-save-btn');
+  btn.disabled = true; btn.textContent = 'Đang lưu...';
+
+  const payload = {
+    gpa:                 document.getElementById('e-gpa').value.trim(),
+    english_level:       document.getElementById('e-english').value.trim(),
+    coursework:          document.getElementById('e-coursework').value.trim(),
+    graduation_progress: parseInt(document.getElementById('e-progress').value) || 75,
+    graduation_year:     parseInt(document.getElementById('e-year').value) || 2027,
+    updated_at:          new Date().toISOString(),
+  };
+
+  const { error } = await sb.from('profile').update(payload).eq('id', profileId);
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Lưu Education';
+  error ? showToast('Lỗi: ' + error.message, 'error') : showToast('Education đã được lưu!');
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// SKILLS — I KNOW
+// ═══════════════════════════════════════════════════════════════════
+async function loadSkillsKnow() {
+  const { data } = await sb.from('skills_know').select('*').order('sort_order');
+  renderSkillList('skills-know-list', data || [], 'skills_know');
+}
+
+async function addSkillKnow() {
+  const input = document.getElementById('new-skill-know');
+  const name = input.value.trim();
+  if (!name) return;
+  const { data: existing } = await sb.from('skills_know').select('sort_order').order('sort_order', { ascending: false }).limit(1);
+  const order = existing && existing.length > 0 ? existing[0].sort_order + 1 : 1;
+  const { error } = await sb.from('skills_know').insert({ name, sort_order: order });
+  if (error) { showToast('Lỗi: ' + error.message, 'error'); return; }
+  input.value = '';
+  showToast(`Đã thêm "${name}"`);
+  loadSkillsKnow();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SKILLS — I USE
+// ═══════════════════════════════════════════════════════════════════
+async function loadSkillsUse() {
+  const { data } = await sb.from('skills_use').select('*').order('sort_order');
+  renderSkillList('skills-use-list', data || [], 'skills_use');
+}
+
+async function addSkillUse() {
+  const input = document.getElementById('new-skill-use');
+  const name = input.value.trim();
+  if (!name) return;
+  const { data: existing } = await sb.from('skills_use').select('sort_order').order('sort_order', { ascending: false }).limit(1);
+  const order = existing && existing.length > 0 ? existing[0].sort_order + 1 : 1;
+  const { error } = await sb.from('skills_use').insert({ name, sort_order: order });
+  if (error) { showToast('Lỗi: ' + error.message, 'error'); return; }
+  input.value = '';
+  showToast(`Đã thêm "${name}"`);
+  loadSkillsUse();
+}
+
+// ─── Shared Skill List Renderer ─────────────────────────────────────
+function renderSkillList(containerId, items, tableName) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  if (items.length === 0) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:0.875rem">Chưa có mục nào.</p>';
+    return;
+  }
+  container.innerHTML = items.map(item => `
+    <div class="item-row" id="skill-row-${item.id}">
+      <span>${item.name}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteSkill('${item.id}', '${tableName}', '${containerId}')">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Xoá
+      </button>
+    </div>`).join('');
+}
+
+async function deleteSkill(id, tableName, containerId) {
+  if (!confirm('Xóa mục này?')) return;
+  const { error } = await sb.from(tableName).delete().eq('id', id);
+  if (error) { showToast('Lỗi: ' + error.message, 'error'); return; }
+  showToast('Đã xoá');
+  if (tableName === 'skills_know') loadSkillsKnow();
+  else if (tableName === 'skills_use') loadSkillsUse();
+  else if (tableName === 'technical_skills') loadTechSkills();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TECHNICAL SKILLS
+// ═══════════════════════════════════════════════════════════════════
+async function loadTechSkills() {
+  const { data } = await sb.from('technical_skills').select('*').order('sort_order');
+  renderSkillList('tech-skills-list', data || [], 'technical_skills');
+}
+
+async function addTechSkill() {
+  const input = document.getElementById('new-tech-skill');
+  const name = input.value.trim();
+  if (!name) return;
+  const { data: existing } = await sb.from('technical_skills').select('sort_order').order('sort_order', { ascending: false }).limit(1);
+  const order = existing && existing.length > 0 ? existing[0].sort_order + 1 : 1;
+  const { error } = await sb.from('technical_skills').insert({ name, sort_order: order });
+  if (error) { showToast('Lỗi: ' + error.message, 'error'); return; }
+  input.value = '';
+  showToast(`Đã thêm "${name}"`);
+  loadTechSkills();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SOCIAL LINKS
+// ═══════════════════════════════════════════════════════════════════
+async function loadSocialLinks() {
+  const { data } = await sb.from('social_links').select('*').order('sort_order');
+  const container = document.getElementById('social-links-list');
+  if (!container) return;
+  if (!data || data.length === 0) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:0.875rem">Chưa có liên kết nào.</p>';
+    return;
+  }
+  container.innerHTML = data.map(link => `
+    <div class="item-row" style="gap:0.75rem;flex-wrap:wrap">
+      <span style="flex:0 0 90px;font-weight:600;text-transform:capitalize">${link.platform}</span>
+      <input type="url" value="${link.url}" id="sl-url-${link.id}"
+        style="flex:1;min-width:200px;padding:0.4rem 0.625rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.875rem" />
+      <label class="checkbox-row" style="flex:0 0 auto">
+        <input type="checkbox" id="sl-vis-${link.id}" ${link.is_visible ? 'checked' : ''} />
+        Hiển thị
+      </label>
+      <button class="btn btn-primary btn-sm" onclick="updateSocialLink('${link.id}')">Lưu</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteSocialLink('${link.id}')">Xoá</button>
+    </div>`).join('');
+}
+
+async function updateSocialLink(id) {
+  const url     = document.getElementById(`sl-url-${id}`).value.trim();
+  const visible = document.getElementById(`sl-vis-${id}`).checked;
+  const { error } = await sb.from('social_links').update({ url, is_visible: visible }).eq('id', id);
+  error ? showToast('Lỗi: ' + error.message, 'error') : showToast('Đã lưu social link!');
+}
+
+async function deleteSocialLink(id) {
+  if (!confirm('Xóa liên kết này?')) return;
+  const { error } = await sb.from('social_links').delete().eq('id', id);
+  if (error) { showToast('Lỗi: ' + error.message, 'error'); return; }
+  showToast('Đã xoá');
+  loadSocialLinks();
+}
+
+async function addSocialLink() {
+  const platform = document.getElementById('new-social-platform').value;
+  const url      = document.getElementById('new-social-url').value.trim();
+  if (!url) { showToast('Vui lòng nhập URL', 'error'); return; }
+  const { data: existing } = await sb.from('social_links').select('sort_order').order('sort_order', { ascending: false }).limit(1);
+  const order = existing && existing.length > 0 ? existing[0].sort_order + 1 : 1;
+  const { error } = await sb.from('social_links').insert({ platform, url, sort_order: order });
+  if (error) { showToast('Lỗi: ' + error.message, 'error'); return; }
+  document.getElementById('new-social-url').value = '';
+  showToast(`Đã thêm ${platform}`);
+  loadSocialLinks();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PROJECTS
+// ═══════════════════════════════════════════════════════════════════
+async function loadProjects() {
+  const tbody = document.getElementById('projects-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Đang tải...</td></tr>';
+  const { data, error } = await sb.from('projects').select('*').order('sort_order');
+  if (error || !data) {
+    tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Lỗi tải dữ liệu</td></tr>';
+    return;
+  }
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Chưa có dự án nào. Thêm dự án đầu tiên!</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(p => `
+    <tr>
+      <td style="font-weight:500;max-width:200px;word-break:break-word">${p.title}</td>
+      <td>${p.role || '—'}</td>
+      <td>${p.domain || '—'}</td>
+      <td><span class="badge ${p.is_visible ? 'badge-visible' : 'badge-hidden'}">${p.is_visible ? 'Hiển thị' : 'Ẩn'}</span></td>
+      <td>${p.sort_order}</td>
+      <td style="text-align:right;white-space:nowrap">
+        <button class="btn btn-outline btn-sm" onclick='openProjectModal(${JSON.stringify(p).replace(/'/g, "&#39;")})' style="margin-right:0.375rem">Sửa</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProject('${p.id}')">Xoá</button>
+      </td>
+    </tr>`).join('');
+}
+
+function openProjectModal(project) {
+  document.getElementById('project-modal').style.display = 'flex';
+  if (project) {
+    document.getElementById('modal-title').textContent = 'Sửa dự án';
+    document.getElementById('proj-id').value          = project.id;
+    document.getElementById('proj-title').value       = project.title || '';
+    document.getElementById('proj-role').value        = project.role || '';
+    document.getElementById('proj-domain').value      = project.domain || '';
+    document.getElementById('proj-team').value        = project.team_size || '';
+    document.getElementById('proj-order').value       = project.sort_order || 0;
+    document.getElementById('proj-description').value = project.description || '';
+    document.getElementById('proj-demo').value        = project.demo_url || '';
+    document.getElementById('proj-github').value      = project.github_url || '';
+    document.getElementById('proj-tags').value        = (project.tech_tags || []).join(', ');
+    document.getElementById('proj-visible').checked   = project.is_visible !== false;
+  } else {
+    document.getElementById('modal-title').textContent = 'Thêm dự án mới';
+    document.getElementById('project-form').reset();
+    document.getElementById('proj-id').value = '';
+    document.getElementById('proj-visible').checked = true;
+  }
+}
+
+function closeProjectModal() {
+  document.getElementById('project-modal').style.display = 'none';
+}
+
+function closeModalOnOverlay(e) {
+  if (e.target === document.getElementById('project-modal')) closeProjectModal();
+}
+
+document.getElementById('project-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('proj-save-btn');
+  btn.disabled = true; btn.textContent = 'Đang lưu...';
+
+  const id = document.getElementById('proj-id').value;
+  const tagsRaw = document.getElementById('proj-tags').value;
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+  const payload = {
+    title:       document.getElementById('proj-title').value.trim(),
+    role:        document.getElementById('proj-role').value.trim() || null,
+    domain:      document.getElementById('proj-domain').value.trim() || null,
+    team_size:   parseInt(document.getElementById('proj-team').value) || null,
+    sort_order:  parseInt(document.getElementById('proj-order').value) || 0,
+    description: document.getElementById('proj-description').value.trim() || null,
+    demo_url:    document.getElementById('proj-demo').value.trim() || null,
+    github_url:  document.getElementById('proj-github').value.trim() || null,
+    tech_tags:   tags,
+    is_visible:  document.getElementById('proj-visible').checked,
+    updated_at:  new Date().toISOString(),
+  };
+
+  let error;
+  if (id) {
+    ({ error } = await sb.from('projects').update(payload).eq('id', id));
+  } else {
+    payload.created_at = new Date().toISOString();
+    ({ error } = await sb.from('projects').insert(payload));
+  }
+
+  btn.disabled = false; btn.textContent = 'Lưu dự án';
+  if (error) { showToast('Lỗi: ' + error.message, 'error'); return; }
+  showToast(id ? 'Đã cập nhật dự án!' : 'Đã thêm dự án mới!');
+  closeProjectModal();
+  loadProjects();
+});
+
+async function deleteProject(id) {
+  if (!confirm('Xoá dự án này? Hành động không thể hoàn tác.')) return;
+  const { error } = await sb.from('projects').delete().eq('id', id);
+  error ? showToast('Lỗi: ' + error.message, 'error') : showToast('Đã xoá dự án');
+  loadProjects();
+}
+
+// ─── Init ───────────────────────────────────────────────────────────
+checkAuth();
+</script>
+</body>
+</html>
+
